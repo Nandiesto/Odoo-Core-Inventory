@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}Reorder Rules — Core Inventory{% endblock %}
+{% block page_title %}Reorder Rules{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Reorder Rules</h2>
+    <a href="{% url 'inventory:reorder_rule_create' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> New Rule</a>
+  </div>
+  {% if rules %}
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Product</th><th>Warehouse</th><th>Min Qty</th><th>Reorder Qty</th><th class="text-right">Actions</th></tr></thead>
+      <tbody>
+        {% for rule in rules %}
+        <tr>
+          <td style="font-weight:550;">{{ rule.product.name }} <span class="text-muted">({{ rule.product.sku }})</span></td>
+          <td>{{ rule.warehouse.name }}</td>
+          <td>{{ rule.min_quantity }}</td>
+          <td>{{ rule.reorder_quantity }}</td>
+          <td class="text-right">
+            <a href="{% url 'inventory:reorder_rule_edit' rule.pk %}" class="btn btn-ghost btn-sm"><i class="fas fa-pen"></i></a>
+            <a href="{% url 'inventory:reorder_rule_delete' rule.pk %}" class="btn btn-ghost btn-sm" style="color:var(--danger);"><i class="fas fa-trash"></i></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="empty-icon">🔄</div><p>No reorder rules set up yet.</p>
+    <a href="{% url 'inventory:reorder_rule_create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> New Rule</a></div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} — Core Inventory{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:800px;">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Reference</label>{{ form.reference }}
+        {% if form.reference.errors %}<p class="form-error">{{ form.reference.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Customer</label>{{ form.customer }}
+        {% if form.customer.errors %}<p class="form-error">{{ form.customer.errors.0 }}</p>{% endif %}
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Source Location</label>{{ form.location }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Scheduled Date</label>{{ form.scheduled_date }}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label>{{ form.notes }}</div>
+
+    <hr style="border-color:var(--border-color); margin:24px 0;">
+    <h3 style="font-size:0.95rem; margin-bottom:16px;">Products</h3>
+    {{ formset.management_form }}
+    {% for line_form in formset %}
+    <div class="form-row mb-4" style="align-items:end;">
+      <div class="form-group"><label class="form-label">Product</label>{{ line_form.product }}</div>
+      <div class="form-group"><label class="form-label">Quantity</label>{{ line_form.quantity }}</div>
+      {% if line_form.DELETE %}<div class="form-group" style="padding-bottom:10px;">{{ line_form.DELETE }} Delete</div>{% endif %}
+      {{ line_form.id }}
+    </div>
+    {% endfor %}
+
+    <div class="flex gap-3 mt-4">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Create Delivery</button>
+      <a href="{% url 'inventory:delivery_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

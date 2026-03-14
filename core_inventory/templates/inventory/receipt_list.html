@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Receipts — Core Inventory{% endblock %}
+{% block page_title %}Receipts{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Receipts (Incoming Stock)</h2>
+    <a href="{% url 'inventory:receipt_create' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> New Receipt</a>
+  </div>
+  <form class="filter-bar" method="get">
+    <select name="status">
+      <option value="">All Status</option>
+      <option value="draft" {% if selected_status == 'draft' %}selected{% endif %}>Draft</option>
+      <option value="waiting" {% if selected_status == 'waiting' %}selected{% endif %}>Waiting</option>
+      <option value="ready" {% if selected_status == 'ready' %}selected{% endif %}>Ready</option>
+      <option value="done" {% if selected_status == 'done' %}selected{% endif %}>Done</option>
+      <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+    </select>
+    <button type="submit" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
+    {% if selected_status %}<a href="{% url 'inventory:receipt_list' %}" class="btn btn-ghost btn-sm">Clear</a>{% endif %}
+  </form>
+  {% if receipts %}
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Reference</th><th>Supplier</th><th>Location</th><th>Status</th><th>Date</th><th class="text-right">Actions</th></tr></thead>
+      <tbody>
+        {% for r in receipts %}
+        <tr>
+          <td><a href="{% url 'inventory:receipt_detail' r.pk %}" style="font-weight:550;">{{ r.reference }}</a></td>
+          <td>{{ r.supplier }}</td>
+          <td class="text-muted text-sm">{{ r.location }}</td>
+          <td><span class="badge badge-{{ r.status }}">{{ r.get_status_display }}</span></td>
+          <td class="text-muted text-sm">{{ r.scheduled_date|date:"M d, Y" }}</td>
+          <td class="text-right"><a href="{% url 'inventory:receipt_detail' r.pk %}" class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="empty-icon">📥</div><p>No receipts found.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

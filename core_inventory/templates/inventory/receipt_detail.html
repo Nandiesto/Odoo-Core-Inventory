@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}{{ receipt.reference }} — Core Inventory{% endblock %}
+{% block page_title %}Receipt {{ receipt.reference }}{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <span class="badge badge-{{ receipt.status }}" style="font-size:0.85rem; padding:6px 16px;">{{ receipt.get_status_display }}</span>
+  <div class="flex gap-2">
+    {% if receipt.status != 'done' and receipt.status != 'cancelled' %}
+    <form method="post" action="{% url 'inventory:receipt_validate' receipt.pk %}" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check-double"></i> Validate</button>
+    </form>
+    <form method="post" action="{% url 'inventory:receipt_cancel' receipt.pk %}" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-xmark"></i> Cancel</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="detail-grid">
+  <div class="detail-item"><label>Supplier</label><span>{{ receipt.supplier }}</span></div>
+  <div class="detail-item"><label>Location</label><span>{{ receipt.location }}</span></div>
+  <div class="detail-item"><label>Scheduled</label><span>{{ receipt.scheduled_date|date:"M d, Y" }}</span></div>
+  <div class="detail-item"><label>Created by</label><span>{{ receipt.created_by|default:"—" }}</span></div>
+  {% if receipt.validated_at %}
+  <div class="detail-item"><label>Validated</label><span>{{ receipt.validated_at|date:"M d, Y H:i" }}</span></div>
+  {% endif %}
+</div>
+
+{% if receipt.notes %}<p class="text-muted text-sm mb-4">{{ receipt.notes }}</p>{% endif %}
+
+<div class="card">
+  <div class="card-header"><h2 class="card-title">Products</h2></div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Product</th><th>SKU</th><th>Quantity</th></tr></thead>
+      <tbody>
+        {% for line in lines %}
+        <tr>
+          <td style="font-weight:550;">{{ line.product.name }}</td>
+          <td class="text-muted">{{ line.product.sku }}</td>
+          <td>{{ line.quantity }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

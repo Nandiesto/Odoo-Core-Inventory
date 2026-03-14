@@ -1,0 +1,21 @@
+{% extends 'auth_base.html' %}
+{% block title %}Verify OTP — Core Inventory{% endblock %}
+
+{% block auth_content %}
+<h1>Verify OTP</h1>
+<p class="auth-subtitle">Enter the 6-digit code sent to your email</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  <div class="form-group">
+    <label class="form-label" for="id_otp">OTP Code</label>
+    {{ form.otp }}
+    {% if form.otp.errors %}<p class="form-error">{{ form.otp.errors.0 }}</p>{% endif %}
+  </div>
+  <button type="submit" class="btn btn-primary">Verify</button>
+</form>
+
+<div class="auth-links">
+  <a href="{% url 'accounts:otp_request' %}">← Resend OTP</a>
+</div>
+{% endblock %}

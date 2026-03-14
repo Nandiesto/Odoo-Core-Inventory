@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}{{ transfer.reference }} — Core Inventory{% endblock %}
+{% block page_title %}Transfer {{ transfer.reference }}{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <span class="badge badge-{{ transfer.status }}" style="font-size:0.85rem; padding:6px 16px;">{{ transfer.get_status_display }}</span>
+  <div class="flex gap-2">
+    {% if transfer.status != 'done' and transfer.status != 'cancelled' %}
+    <form method="post" action="{% url 'inventory:transfer_validate' transfer.pk %}" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-check-double"></i> Validate</button>
+    </form>
+    <form method="post" action="{% url 'inventory:transfer_cancel' transfer.pk %}" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-xmark"></i> Cancel</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="detail-grid">
+  <div class="detail-item"><label>Product</label><span style="font-weight:600;">{{ transfer.product.name }} ({{ transfer.product.sku }})</span></div>
+  <div class="detail-item"><label>Quantity</label><span style="font-size:1.2rem;font-weight:700;">{{ transfer.quantity }}</span></div>
+  <div class="detail-item"><label>From</label><span>{{ transfer.from_location }}</span></div>
+  <div class="detail-item"><label>To</label><span>{{ transfer.to_location }}</span></div>
+  <div class="detail-item"><label>Scheduled</label><span>{{ transfer.scheduled_date|date:"M d, Y" }}</span></div>
+  <div class="detail-item"><label>Created by</label><span>{{ transfer.created_by|default:"—" }}</span></div>
+  {% if transfer.validated_at %}
+  <div class="detail-item"><label>Completed</label><span>{{ transfer.validated_at|date:"M d, Y H:i" }}</span></div>
+  {% endif %}
+</div>
+{% if transfer.notes %}<p class="text-muted text-sm mt-4">{{ transfer.notes }}</p>{% endif %}
+{% endblock %}
