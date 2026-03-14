@@ -52,7 +52,8 @@
 <!-- ═══ Dynamic Filters ═══ -->
 <div class="card mb-4">
   <div class="card-header">
-    <h2 class="card-title"><i class="fas fa-filter" style="color:var(--accent-primary);margin-right:8px;"></i>Document Explorer</h2>
+    <h2 class="card-title"><i class="fas fa-filter" style="color:var(--accent-primary);margin-right:8px;"></i>Document
+      Explorer</h2>
   </div>
   <form class="filter-bar" method="get">
     <select name="doc_type" class="form-input" style="max-width:180px;">
@@ -73,7 +74,8 @@
     <select name="warehouse" class="form-input" style="max-width:180px;">
       <option value="">All Warehouses</option>
       {% for wh in warehouses %}
-      <option value="{{ wh.pk }}" {% if selected_warehouse == wh.pk|stringformat:"d" %}selected{% endif %}>{{ wh.name }}</option>
+      <option value="{{ wh.pk }}" {% if selected_warehouse == wh.pk|stringformat:"d" %}selected{% endif %}>{{ wh.name }}
+      </option>
       {% endfor %}
     </select>
     <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> Search</button>
@@ -84,7 +86,16 @@
   {% if filtered_docs %}
   <div class="table-wrapper">
     <table>
-      <thead><tr><th>Type</th><th>Reference</th><th>Partner / Product</th><th>Status</th><th>Date</th><th></th></tr></thead>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Reference</th>
+          <th>Partner / Product</th>
+          <th>Status</th>
+          <th>Date</th>
+          <th></th>
+        </tr>
+      </thead>
       <tbody>
         {% for doc in filtered_docs %}
         <tr>
@@ -93,7 +104,8 @@
           <td class="text-muted text-sm">{{ doc.partner|truncatewords:6 }}</td>
           <td><span class="badge badge-{{ doc.status_class }}">{{ doc.status }}</span></td>
           <td class="text-muted text-sm">{{ doc.date|date:"M d, Y" }}</td>
-          <td class="text-right"><a href="{{ doc.url }}" class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></a></td>
+          <td class="text-right"><a href="{{ doc.url }}" class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></a>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
@@ -116,11 +128,20 @@
   </div>
   <div class="table-wrapper">
     <table>
-      <thead><tr><th>Product</th><th>Warehouse</th><th>Current Stock</th><th>Min Threshold</th><th>Status</th></tr></thead>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Warehouse</th>
+          <th>Current Stock</th>
+          <th>Min Threshold</th>
+          <th>Status</th>
+        </tr>
+      </thead>
       <tbody>
         {% for item in out_of_stock_products %}
         <tr>
-          <td><a href="{% url 'inventory:product_detail' item.product.pk %}" style="font-weight:550;">{{ item.product.name }}</a></td>
+          <td><a href="{% url 'inventory:product_detail' item.product.pk %}" style="font-weight:550;">{{
+              item.product.name }}</a></td>
           <td class="text-muted text-sm">{{ item.warehouse.name }}</td>
           <td><strong style="color:var(--danger);">{{ item.quantity }}</strong></td>
           <td>{{ item.min_quantity }}</td>
@@ -129,7 +150,8 @@
         {% endfor %}
         {% for item in low_stock_products %}
         <tr>
-          <td><a href="{% url 'inventory:product_detail' item.product.pk %}" style="font-weight:550;">{{ item.product.name }}</a></td>
+          <td><a href="{% url 'inventory:product_detail' item.product.pk %}" style="font-weight:550;">{{
+              item.product.name }}</a></td>
           <td class="text-muted text-sm">{{ item.warehouse.name }}</td>
           <td><strong style="color:var(--warning);">{{ item.quantity }}</strong></td>
           <td>{{ item.min_quantity }}</td>
@@ -151,15 +173,18 @@
     </div>
     <div class="quick-action-grid">
       <a href="{% url 'inventory:receipt_create' %}" class="quick-action-btn">
-        <div class="qa-icon" style="background:var(--success-bg);color:var(--success);"><i class="fas fa-truck-ramp-box"></i></div>
+        <div class="qa-icon" style="background:var(--success-bg);color:var(--success);"><i
+            class="fas fa-truck-ramp-box"></i></div>
         <span>New Receipt</span>
       </a>
       <a href="{% url 'inventory:delivery_create' %}" class="quick-action-btn">
-        <div class="qa-icon" style="background:var(--info-bg);color:var(--info);"><i class="fas fa-truck-fast"></i></div>
+        <div class="qa-icon" style="background:var(--info-bg);color:var(--info);"><i class="fas fa-truck-fast"></i>
+        </div>
         <span>New Delivery</span>
       </a>
       <a href="{% url 'inventory:transfer_create' %}" class="quick-action-btn">
-        <div class="qa-icon" style="background:var(--accent-glow);color:var(--accent-hover);"><i class="fas fa-arrows-rotate"></i></div>
+        <div class="qa-icon" style="background:var(--accent-glow);color:var(--accent-hover);"><i
+            class="fas fa-arrows-rotate"></i></div>
         <span>New Transfer</span>
       </a>
       <a href="{% url 'inventory:product_create' %}" class="quick-action-btn">
@@ -167,11 +192,13 @@
         <span>New Product</span>
       </a>
       <a href="{% url 'inventory:adjustment_create' %}" class="quick-action-btn">
-        <div class="qa-icon" style="background:var(--danger-bg);color:var(--danger);"><i class="fas fa-sliders"></i></div>
+        <div class="qa-icon" style="background:var(--danger-bg);color:var(--danger);"><i class="fas fa-sliders"></i>
+        </div>
         <span>Adjust Stock</span>
       </a>
       <a href="{% url 'inventory:move_history' %}" class="quick-action-btn">
-        <div class="qa-icon" style="background:rgba(255,255,255,0.05);color:var(--text-secondary);"><i class="fas fa-clock-rotate-left"></i></div>
+        <div class="qa-icon" style="background:var(--accent-soft);color:var(--text-secondary);"><i
+            class="fas fa-clock-rotate-left"></i></div>
         <span>Move History</span>
       </a>
     </div>
