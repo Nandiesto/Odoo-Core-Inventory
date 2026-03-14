@@ -7,13 +7,16 @@
   <div class="card-header">
     <h2 class="card-title">Warehouses & Locations</h2>
     <div class="flex gap-2">
-      <a href="{% url 'inventory:location_create' %}" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> New Location</a>
-      <a href="{% url 'inventory:warehouse_create' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> New Warehouse</a>
+      <a href="{% url 'inventory:location_create' %}" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> New
+        Location</a>
+      <a href="{% url 'inventory:warehouse_create' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> New
+        Warehouse</a>
     </div>
   </div>
   {% if warehouses %}
   {% for wh in warehouses %}
-  <div style="margin-bottom:24px; padding:16px; background:rgba(255,255,255,0.02); border-radius:var(--radius-md); border:1px solid var(--border-color);">
+  <div
+    style="margin-bottom:24px; padding:16px; background:var(--bg-elevated); border-radius:var(--radius-md); border:1px solid var(--border-color);">
     <div class="flex justify-between items-center mb-4">
       <div>
         <h3 style="font-size:1rem; font-weight:600;">🏭 {{ wh.name }}</h3>
@@ -21,19 +24,26 @@
       </div>
       <div class="flex gap-2">
         <a href="{% url 'inventory:warehouse_edit' wh.pk %}" class="btn btn-ghost btn-sm"><i class="fas fa-pen"></i></a>
-        <a href="{% url 'inventory:warehouse_delete' wh.pk %}" class="btn btn-ghost btn-sm" style="color:var(--danger);"><i class="fas fa-trash"></i></a>
+        <a href="{% url 'inventory:warehouse_delete' wh.pk %}" class="btn btn-ghost btn-sm"
+          style="color:var(--danger);"><i class="fas fa-trash"></i></a>
       </div>
     </div>
     {% if wh.locations.all %}
     <div class="table-wrapper">
       <table>
-        <thead><tr><th>Location</th><th class="text-right">Actions</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Location</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
         <tbody>
           {% for loc in wh.locations.all %}
           <tr>
             <td>📍 {{ loc.name }}</td>
             <td class="text-right">
-              <a href="{% url 'inventory:location_delete' loc.pk %}" class="btn btn-ghost btn-sm" style="color:var(--danger);"><i class="fas fa-trash"></i></a>
+              <a href="{% url 'inventory:location_delete' loc.pk %}" class="btn btn-ghost btn-sm"
+                style="color:var(--danger);"><i class="fas fa-trash"></i></a>
             </td>
           </tr>
           {% endfor %}
@@ -46,8 +56,12 @@
   </div>
   {% endfor %}
   {% else %}
-  <div class="empty-state"><div class="empty-icon">🏭</div><p>No warehouses yet. Create one to get started.</p>
-    <a href="{% url 'inventory:warehouse_create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> New Warehouse</a></div>
+  <div class="empty-state">
+    <div class="empty-icon">🏭</div>
+    <p>No warehouses yet. Create one to get started.</p>
+    <a href="{% url 'inventory:warehouse_create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> New
+      Warehouse</a>
+  </div>
   {% endif %}
 </div>
 {% endblock %}

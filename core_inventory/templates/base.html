@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   {% block extra_css %}{% endblock %}
 </head>
+
 <body>
   <div class="layout">
     <!-- Sidebar -->
@@ -23,7 +25,8 @@
         <!-- Main -->
         <div class="nav-section">
           <div class="nav-section-title">Main</div>
-          <a href="{% url 'dashboard:home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' and request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
+          <a href="{% url 'dashboard:home' %}"
+            class="nav-link {% if request.resolver_match.url_name == 'home' and request.resolver_match.app_name == 'dashboard' %}active{% endif %}">
             <span class="nav-icon"><i class="fas fa-chart-pie"></i></span> Dashboard
           </a>
         </div>
@@ -31,13 +34,16 @@
         <!-- Products -->
         <div class="nav-section">
           <div class="nav-section-title">Products</div>
-          <a href="{% url 'inventory:product_list' %}" class="nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'inventory:product_list' %}"
+            class="nav-link {% if 'product' in request.resolver_match.url_name %}active{% endif %}">
             <span class="nav-icon"><i class="fas fa-boxes-stacked"></i></span> Products
           </a>
-          <a href="{% url 'inventory:category_list' %}" class="nav-link {% if 'category' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'inventory:category_list' %}"
+            class="nav-link {% if 'category' in request.resolver_match.url_name %}active{% endif %}">
             <span class="nav-icon"><i class="fas fa-tags"></i></span> Categories
           </a>
-          <a href="{% url 'inventory:reorder_rule_list' %}" class="nav-link {% if 'reorder' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'inventory:reorder_rule_list' %}"
+            class="nav-link {% if 'reorder' in request.resolver_match.url_name %}active{% endif %}">
             <span class="nav-icon"><i class="fas fa-rotate"></i></span> Reorder Rules
           </a>
         </div>
@@ -45,19 +51,24 @@
         <!-- Operations -->
         <div class="nav-section">
           <div class="nav-section-title">Operations</div>
-          <a href="{% url 'inventory:receipt_list' %}" class="nav-link {% if 'receipt' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'inventory:receipt_list' %}"
+            class="nav-link {% if 'receipt' in request.resolver_match.url_name %}active{% endif %}">
             <span class="nav-icon"><i class="fas fa-truck-ramp-box"></i></span> Receipts
           </a>
-          <a href="{% url 'inventory:delivery_list' %}" class="nav-link {% if 'delivery' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'inventory:delivery_list' %}"
+            class="nav-link {% if 'delivery' in request.resolver_match.url_name %}active{% endif %}">
             <span class="nav-icon"><i class="fas fa-truck-fast"></i></span> Delivery Orders
           </a>
-          <a href="{% url 'inventory:transfer_list' %}" class="nav-link {% if 'transfer' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'inventory:transfer_list' %}"
+            class="nav-link {% if 'transfer' in request.resolver_match.url_name %}active{% endif %}">
             <span class="nav-icon"><i class="fas fa-arrows-rotate"></i></span> Internal Transfers
           </a>
-          <a href="{% url 'inventory:adjustment_list' %}" class="nav-link {% if 'adjustment' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'inventory:adjustment_list' %}"
+            class="nav-link {% if 'adjustment' in request.resolver_match.url_name %}active{% endif %}">
             <span class="nav-icon"><i class="fas fa-sliders"></i></span> Adjustments
           </a>
-          <a href="{% url 'inventory:move_history' %}" class="nav-link {% if 'move' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'inventory:move_history' %}"
+            class="nav-link {% if 'move' in request.resolver_match.url_name %}active{% endif %}">
             <span class="nav-icon"><i class="fas fa-clock-rotate-left"></i></span> Move History
           </a>
         </div>
@@ -65,7 +76,8 @@
         <!-- Settings -->
         <div class="nav-section">
           <div class="nav-section-title">Settings</div>
-          <a href="{% url 'inventory:warehouse_list' %}" class="nav-link {% if 'warehouse' in request.resolver_match.url_name or 'location' in request.resolver_match.url_name %}active{% endif %}">
+          <a href="{% url 'inventory:warehouse_list' %}"
+            class="nav-link {% if 'warehouse' in request.resolver_match.url_name or 'location' in request.resolver_match.url_name %}active{% endif %}">
             <span class="nav-icon"><i class="fas fa-warehouse"></i></span> Warehouses
           </a>
         </div>
@@ -73,14 +85,14 @@
 
       <!-- Sidebar Footer -->
       <div class="sidebar-footer">
-        <a href="{% url 'accounts:profile' %}" class="sidebar-user" style="color: inherit;">
+        <a href="{% url 'accounts:profile' %}" class="sidebar-user" style="color: inherit; text-decoration: none;">
           <div class="avatar">{{ request.user.first_name|default:request.user.username|make_list|first|upper }}</div>
           <div class="user-info">
             <div class="user-name">{{ request.user.get_full_name|default:request.user.username }}</div>
             <div class="user-role">{{ request.user.get_role_display|default:"Staff" }}</div>
           </div>
         </a>
-        <a href="{% url 'accounts:logout' %}" class="nav-link mt-2" style="color: var(--danger);">
+        <a href="{% url 'accounts:logout' %}" class="nav-link mt-2" style="color: var(--danger); font-weight: 500;">
           <span class="nav-icon"><i class="fas fa-right-from-bracket"></i></span> Logout
         </a>
       </div>
@@ -111,7 +123,8 @@
         <ul class="messages">
           {% for message in messages %}
           <li class="message message-{{ message.tags }}">
-            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-triangle-exclamation{% else %}fa-info-circle{% endif %}"></i>
+            <i
+              class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-triangle-exclamation{% else %}fa-info-circle{% endif %}"></i>
             {{ message }}
           </li>
           {% endfor %}
@@ -126,4 +139,5 @@
   <script src="{% static 'js/main.js' %}"></script>
   {% block extra_js %}{% endblock %}
 </body>
+
 </html>

@@ -1,11 +1,9 @@
 from django.contrib import admin
-from django.urls import path, include
-from django.shortcuts import redirect
+from django.urls import path, include, re_path
+from api.views import react_app_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', lambda request: redirect('dashboard:home'), name='root'),
-    path('dashboard/', include('dashboard.urls')),
-    path('accounts/', include('accounts.urls')),
-    path('inventory/', include('inventory.urls')),
+    path('api/', include('api.urls')),
+    re_path(r'^.*$', react_app_view, name='react_app'),
 ]
