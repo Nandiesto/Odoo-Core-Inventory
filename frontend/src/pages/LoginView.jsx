@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../api/client';
 
 export const LoginView = () => {
@@ -85,8 +85,15 @@ export const LoginView = () => {
                     </div>
 
                     <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <label className="form-label">Password</label>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <label className="form-label" style={{ marginBottom: 0 }}>Password</label>
+                            <Link to="/forgot-password" style={{
+                                fontSize: '0.8rem', color: 'var(--color-accent-gold-primary)',
+                                textDecoration: 'none', fontWeight: 500,
+                                transition: 'color 0.2s'
+                            }}>
+                                Forgot Password?
+                            </Link>
                         </div>
                         <input
                             type="password"
@@ -96,6 +103,7 @@ export const LoginView = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             disabled={loading}
                             required
+                            style={{ marginTop: '8px' }}
                         />
                     </div>
 
@@ -108,6 +116,13 @@ export const LoginView = () => {
                         {loading ? 'Authenticating...' : 'Sign In to Dashboard'}
                     </button>
                 </form>
+
+                <p className="text-muted" style={{ textAlign: 'center', marginTop: '24px', fontSize: '0.9rem' }}>
+                    Don't have an account?{' '}
+                    <Link to="/signup" className="gold-text" style={{ textDecoration: 'none', fontWeight: 600 }}>
+                        Create one
+                    </Link>
+                </p>
 
             </div>
         </div>

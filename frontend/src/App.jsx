@@ -6,8 +6,15 @@ import { LoginView } from './pages/LoginView';
 import { DashboardView } from './pages/DashboardView';
 import { ProductsView } from './pages/ProductsView';
 import { ReceiptsView } from './pages/ReceiptsView';
+import { DeliveriesView } from './pages/DeliveriesView';
+import { TransfersView } from './pages/TransfersView';
+import { MovesView } from './pages/MovesView';
+import { SettingsView } from './pages/SettingsView';
 import { SignupView } from './pages/SignupView';
 import { ForgotPasswordView } from './pages/ForgotPasswordView';
+
+import { WarehousesView } from './pages/WarehousesView';
+import { LocationsView } from './pages/LocationsView';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }) => {
@@ -34,12 +41,12 @@ function App() {
           <Route path="/dashboard" element={<DashboardView />} />
           <Route path="/products" element={<ProductsView />} />
           <Route path="/receipts" element={<ReceiptsView />} />
-
-          {/* Fallback routing for unbuilt pages */}
-          <Route path="/deliveries" element={<div style={{ padding: '40px' }}><h1 className="title-primary">Deliveries (Coming Soon)</h1></div>} />
-          <Route path="/transfers" element={<div style={{ padding: '40px' }}><h1 className="title-primary">Transfers (Coming Soon)</h1></div>} />
-          <Route path="/moves" element={<div style={{ padding: '40px' }}><h1 className="title-primary">Moves History (Coming Soon)</h1></div>} />
-          <Route path="/settings" element={<div style={{ padding: '40px' }}><h1 className="title-primary">Settings (Coming Soon)</h1></div>} />
+          <Route path="/deliveries" element={<DeliveriesView />} />
+          <Route path="/transfers" element={<TransfersView />} />
+          <Route path="/moves" element={<MovesView />} />
+          <Route path="/warehouses" element={<WarehousesView />} />
+          <Route path="/locations" element={<LocationsView />} />
+          <Route path="/settings" element={<SettingsView />} />
         </Route>
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

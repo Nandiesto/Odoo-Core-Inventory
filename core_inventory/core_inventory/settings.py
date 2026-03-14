@@ -107,6 +107,14 @@ STATICFILES_DIRS = [
 # ---------- Default PK ----------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# ---------- Cache (file-based for OTP persistence across dev reloads) ----------
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': BASE_DIR / '.cache',
+    }
+}
+
 # ---------- Email (SMTP) ----------
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'

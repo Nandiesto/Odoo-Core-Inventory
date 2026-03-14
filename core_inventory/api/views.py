@@ -73,8 +73,8 @@ def api_otp_request(request):
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
 def api_otp_verify(request):
-    email = request.data.get('email', '')
-    otp = request.data.get('otp', '')
+    email = request.data.get('email', '').strip()
+    otp = request.data.get('otp', '').strip()
     if verify_otp(email, otp):
         # We issue a temporary, special token using secret key to allow the user
         # to reset their password on the next step statelessly.
@@ -248,6 +248,33 @@ class ReceiptViewSet(viewsets.ModelViewSet):
             qs = qs.filter(status=s)
         return qs
 
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy() if hasattr(request.data, 'copy') else dict(request.data)
+        lines_data = data.pop('lines', [])
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        receipt = serializer.save(created_by=request.user)
+        
+        for line in lines_data:
+            product_id = line.get('product')
+            quantity = line.get('quantity')
+            if product_id and quantity:
+                ReceiptLine.objects.create(
+                    receipt=receipt,
+                    product_id=product_id,
+                    quantity=quantity
+                )
+        return Response(ReceiptDetailSerializer(receipt).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'])
+    def confirm_receipt(self, request, pk=None):
+        receipt = self.get_object()
+        if receipt.status != 'draft':
+            return Response({'error': 'Can only confirm draft receipts'}, status=400)
+        receipt.status = 'ready'
+        receipt.save()
+        return Response(ReceiptDetailSerializer(receipt).data)
+
     @action(detail=True, methods=['post'])
     def validate_receipt(self, request, pk=None):
         receipt = self.get_object()
@@ -304,6 +331,33 @@ class DeliveryViewSet(viewsets.ModelViewSet):
         if s:
             qs = qs.filter(status=s)
         return qs
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy() if hasattr(request.data, 'copy') else dict(request.data)
+        lines_data = data.pop('lines', [])
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        delivery = serializer.save(created_by=request.user)
+        
+        for line in lines_data:
+            product_id = line.get('product')
+            quantity = line.get('quantity')
+            if product_id and quantity:
+                DeliveryLine.objects.create(
+                    delivery_order=delivery,
+                    product_id=product_id,
+                    quantity=quantity
+                )
+        return Response(DeliveryDetailSerializer(delivery).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'])
+    def confirm_delivery(self, request, pk=None):
+        delivery = self.get_object()
+        if delivery.status != 'draft':
+            return Response({'error': 'Can only confirm draft deliveries'}, status=400)
+        delivery.status = 'ready'
+        delivery.save()
+        return Response(DeliveryDetailSerializer(delivery).data)
 
     @action(detail=True, methods=['post'])
     def validate_delivery(self, request, pk=None):
@@ -362,6 +416,15 @@ class TransferViewSet(viewsets.ModelViewSet):
         if s:
             qs = qs.filter(status=s)
         return qs
+
+    @action(detail=True, methods=['post'])
+    def confirm_transfer(self, request, pk=None):
+        transfer = self.get_object()
+        if transfer.status != 'draft':
+            return Response({'error': 'Can only confirm draft transfers'}, status=400)
+        transfer.status = 'ready'
+        transfer.save()
+        return Response(TransferListSerializer(transfer).data)
 
     @action(detail=True, methods=['post'])
     def validate_transfer(self, request, pk=None):

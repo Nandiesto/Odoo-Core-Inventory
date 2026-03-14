@@ -27,7 +27,9 @@ export const GlassLayout = () => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        // Note: To be hooked up to actual API logout
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('username');
         navigate('/login');
     };
 
@@ -71,6 +73,12 @@ export const GlassLayout = () => {
                     <SidebarItem to="/deliveries" icon={<BsTruck />} label="Deliveries" />
                     <SidebarItem to="/transfers" icon={<BsArrowLeftRight />} label="Transfers" />
                     <SidebarItem to="/moves" icon={<BsClockHistory />} label="Moves History" />
+
+                    <div style={{ margin: '24px 0 8px 16px', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        Configuration
+                    </div>
+                    <SidebarItem to="/warehouses" icon={<BsGrid1X2 />} label="Warehouses" />
+                    <SidebarItem to="/locations" icon={<BsBoxArrowRight />} label="Locations" />
                 </nav>
 
                 <div style={{ padding: '24px 16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>

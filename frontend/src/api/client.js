@@ -67,19 +67,29 @@ export const api = {
     createProduct: (data) => apiClient.post('products/', data),
 
     getCategories: () => apiClient.get('categories/'),
+    createCategory: (data) => apiClient.post('categories/', data),
     getWarehouses: () => apiClient.get('warehouses/'),
+    createWarehouse: (data) => apiClient.post('warehouses/', data),
+    getLocations: () => apiClient.get('locations/'),
+    createLocation: (data) => apiClient.post('locations/', data),
 
     // Operations
     getReceipts: (params) => apiClient.get('receipts/', { params }),
     getReceipt: (id) => apiClient.get(`receipts/${id}/`),
+    createReceipt: (data) => apiClient.post('receipts/', data),
+    confirmReceipt: (id) => apiClient.post(`receipts/${id}/confirm_receipt/`),
     validateReceipt: (id) => apiClient.post(`receipts/${id}/validate_receipt/`),
 
     getDeliveries: (params) => apiClient.get('deliveries/', { params }),
     getDelivery: (id) => apiClient.get(`deliveries/${id}/`),
+    createDelivery: (data) => apiClient.post('deliveries/', data),
+    confirmDelivery: (id) => apiClient.post(`deliveries/${id}/confirm_delivery/`),
     validateDelivery: (id) => apiClient.post(`deliveries/${id}/validate_delivery/`),
 
     getTransfers: (params) => apiClient.get('transfers/', { params }),
     getTransfer: (id) => apiClient.get(`transfers/${id}/`),
+    createTransfer: (data) => apiClient.post('transfers/', data),
+    confirmTransfer: (id) => apiClient.post(`transfers/${id}/confirm_transfer/`),
     validateTransfer: (id) => apiClient.post(`transfers/${id}/validate_transfer/`),
 
     getMoves: (params) => apiClient.get('moves/', { params }),

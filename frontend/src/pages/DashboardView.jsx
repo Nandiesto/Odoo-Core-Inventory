@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     BsBoxSeam, BsExclamationTriangle, BsArrowLeftRight,
     BsTruck, BsBoxArrowInDown, BsClockHistory
@@ -68,6 +69,7 @@ const ActivityRow = ({ action, reference, time, user, status }) => (
 );
 
 export const DashboardView = () => {
+    const navigate = useNavigate();
     const [data, setData] = React.useState(null);
     const [loading, setLoading] = React.useState(true);
 
@@ -100,9 +102,9 @@ export const DashboardView = () => {
                     <p className="text-muted">Overview of your global inventory operations.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
-                    <button className="glass-button"><BsBoxArrowInDown /> Receive</button>
-                    <button className="glass-button"><BsTruck /> Deliver</button>
-                    <button className="glass-button primary"><BsBoxSeam /> New Product</button>
+                    <button className="glass-button" onClick={() => navigate('/receipts')}><BsBoxArrowInDown /> Receive</button>
+                    <button className="glass-button" onClick={() => navigate('/deliveries')}><BsTruck /> Deliver</button>
+                    <button className="glass-button primary" onClick={() => navigate('/products')}><BsBoxSeam /> New Product</button>
                 </div>
             </div>
 
@@ -123,7 +125,7 @@ export const DashboardView = () => {
                 <div className="glass-panel" style={{ padding: '32px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                         <h2 className="title-secondary"><BsClockHistory style={{ marginRight: '8px', color: 'var(--color-accent-gold-primary)' }} /> Recent Activity</h2>
-                        <button className="glass-button" style={{ padding: '6px 16px', fontSize: '0.85rem' }}>View All</button>
+                        <button className="glass-button" style={{ padding: '6px 16px', fontSize: '0.85rem' }} onClick={() => navigate('/moves')}>View All</button>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -133,7 +135,7 @@ export const DashboardView = () => {
                                 key={move.id}
                                 action={`${move.move_type.charAt(0).toUpperCase() + move.move_type.slice(1)}`}
                                 reference={move.reference}
-                                time={new Date(move.created_at).toLocaleDateString()}
+                                time={new Date(move.timestamp).toLocaleDateString()}
                                 user={move.performed_by_name || 'System'}
                                 status="Done"
                             />
@@ -165,7 +167,7 @@ export const DashboardView = () => {
                             )}
                         </div>
 
-                        <button className="glass-button" style={{ width: '100%', marginTop: '20px' }}>Run Replenishment</button>
+                        <button className="glass-button" style={{ width: '100%', marginTop: '20px' }} onClick={() => navigate('/products')}>View All Products</button>
                     </div>
 
                     <div className="glass-card hoverable" style={{ padding: '32px', background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(0,0,0,0.2))' }}>

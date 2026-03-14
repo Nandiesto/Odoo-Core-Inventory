@@ -5,32 +5,76 @@ import { BsPlus, BsSearch, BsFilter, BsThreeDotsVertical } from 'react-icons/bs'
 export const ProductsView = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    
+    // Modal state
+    const [showModal, setShowModal] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [categories, setCategories] = useState([]);
+    const [formData, setFormData] = useState({ name: '', sku: '', category: '', uom: 'unit', description: '' });
+
+    // Category Modal state
+    const [showCatModal, setShowCatModal] = useState(false);
+    const [savingCat, setSavingCat] = useState(false);
+    const [catData, setCatData] = useState({ name: '', description: '' });
 
     useEffect(() => {
-        loadProducts();
+        loadData();
     }, []);
 
-    const loadProducts = async () => {
+    const loadData = async () => {
         try {
-            // Mocking fetch for now if API unlinked, but we wrote the real django DRF api client
-            const res = await api.getProducts();
-            setProducts(res.data);
+            const [prodRes, catRes] = await Promise.all([
+                api.getProducts(),
+                api.getCategories().catch(() => ({ data: [] }))
+            ]);
+            setProducts(prodRes.data);
+            setCategories(catRes.data);
+            if (catRes.data.length > 0) {
+                setFormData(prev => ({ ...prev, category: catRes.data[0].id }));
+            }
         } catch (err) {
             console.error(err);
-            // Fallback dummy data for visualization
-            setProducts([
-                { id: 1, sku: 'PROD-001', name: 'MacBook Pro 16"', category_name: 'Electronics', total_stock: 45, uom_display: 'Unit' },
-                { id: 2, sku: 'PROD-002', name: 'Logitech MX Master 3', category_name: 'Accessories', total_stock: 120, uom_display: 'Unit' },
-                { id: 3, sku: 'PROD-003', name: 'Dell UltraSharp 27"', category_name: 'Electronics', total_stock: 32, uom_display: 'Unit' },
-                { id: 4, sku: 'PROD-004', name: 'Herman Miller Aeron', category_name: 'Furniture', total_stock: 8, uom_display: 'Unit' },
-            ]);
+            setProducts([]);
         } finally {
             setLoading(false);
         }
     };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setSaving(true);
+        try {
+            await api.createProduct(formData);
+            setShowModal(false);
+            setFormData({ name: '', sku: '', category: categories[0]?.id || '', uom: 'unit', description: '' });
+            loadData();
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to create product');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleCatSubmit = async (e) => {
+        e.preventDefault();
+        setSavingCat(true);
+        try {
+            const res = await api.createCategory(catData);
+            setShowCatModal(false);
+            setCatData({ name: '', description: '' });
+            // Refresh data to get new category
+            loadData();
+            // Optional: Auto-select new category in product form
+            setFormData(prev => ({ ...prev, category: res.data.id }));
+        } catch (err) {
+            alert(err.response?.data?.error || 'Failed to create category');
+        } finally {
+            setSavingCat(false);
+        }
+    };
+
     return (
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative' }}>
 
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
@@ -38,9 +82,14 @@ export const ProductsView = () => {
                     <h1 className="title-primary" style={{ fontSize: '2rem' }}>Product Catalog</h1>
                     <p className="text-muted">Manage your global inventory items and stock levels.</p>
                 </div>
-                <button className="glass-button primary">
-                    <BsPlus style={{ fontSize: '1.2rem' }} /> Add Product
-                </button>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button className="glass-button" onClick={() => setShowCatModal(true)}>
+                        <BsPlus style={{ fontSize: '1.2rem' }} /> Add Category
+                    </button>
+                    <button className="glass-button primary" onClick={() => setShowModal(true)}>
+                        <BsPlus style={{ fontSize: '1.2rem' }} /> Add Product
+                    </button>
+                </div>
             </div>
 
             {/* Filter Bar */}
@@ -74,6 +123,8 @@ export const ProductsView = () => {
                     <tbody>
                         {loading ? (
                             <tr><td colSpan="5" style={{ padding: '40px', textAlign: 'center' }}>Loading...</td></tr>
+                        ) : products.length === 0 ? (
+                            <tr><td colSpan="5" style={{ padding: '40px', textAlign: 'center' }} className="text-muted">No products found.</td></tr>
                         ) : products.map(p => (
                             <tr key={p.id} className="glass-interactive" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', transition: 'background 0.2s' }}>
                                 <td style={{ padding: '16px 24px' }}><span className="gold-text" style={{ fontWeight: 600 }}>{p.sku}</span></td>
@@ -96,6 +147,84 @@ export const ProductsView = () => {
                 </table>
             </div>
 
+            {/* Create Product Modal */}
+            {showModal && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+                }}>
+                    <div className="glass-card" style={{ width: '100%', maxWidth: '500px', padding: '32px' }}>
+                        <h2 className="title-secondary" style={{ marginBottom: '24px' }}>Create New Product</h2>
+                        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                <div>
+                                    <label className="form-label">Product Name *</label>
+                                    <input required className="glass-input" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Widget A" />
+                                </div>
+                                <div>
+                                    <label className="form-label">SKU *</label>
+                                    <input required className="glass-input" value={formData.sku} onChange={e => setFormData({ ...formData, sku: e.target.value })} placeholder="e.g. WDG-001" />
+                                </div>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                <div>
+                                    <label className="form-label">Category *</label>
+                                    <select required className="glass-input" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} style={{ appearance: 'none', background: '#111' }}>
+                                        <option value="">-- Select --</option>
+                                        {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="form-label">Unit of Measure *</label>
+                                    <select required className="glass-input" value={formData.uom} onChange={e => setFormData({ ...formData, uom: e.target.value })} style={{ appearance: 'none', background: '#111' }}>
+                                        <option value="unit">Units (pcs)</option>
+                                        <option value="kg">Kilograms (kg)</option>
+                                        <option value="liters">Liters (L)</option>
+                                        <option value="meters">Meters (m)</option>
+                                        <option value="hours">Hours (hr)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="form-label">Description</label>
+                                <textarea className="glass-input" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} placeholder="Product details..." rows="2" />
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
+                                <button type="button" className="glass-button" onClick={() => setShowModal(false)}>Cancel</button>
+                                <button type="submit" className="glass-button primary" disabled={saving}>{saving ? 'Saving...' : 'Create Product'}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Create Category Modal */}
+            {showCatModal && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+                }}>
+                    <div className="glass-card" style={{ width: '100%', maxWidth: '400px', padding: '32px' }}>
+                        <h2 className="title-secondary" style={{ marginBottom: '24px' }}>Create Category</h2>
+                        <form onSubmit={handleCatSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div>
+                                <label className="form-label">Category Name *</label>
+                                <input required className="glass-input" value={catData.name} onChange={e => setCatData({ ...catData, name: e.target.value })} placeholder="e.g. Electronics" />
+                            </div>
+                            <div>
+                                <label className="form-label">Description</label>
+                                <textarea className="glass-input" value={catData.description} onChange={e => setCatData({ ...catData, description: e.target.value })} placeholder="Optional details..." rows="3" />
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
+                                <button type="button" className="glass-button" onClick={() => setShowCatModal(false)}>Cancel</button>
+                                <button type="submit" className="glass-button primary" disabled={savingCat}>{savingCat ? 'Saving...' : 'Create'}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

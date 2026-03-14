@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api/client';
-import { BsBoxArrowInDown, BsCheckLg, BsX, BsSearch } from 'react-icons/bs';
+import { BsTruck, BsCheckLg, BsX, BsPlus, BsSearch } from 'react-icons/bs';
 
 const StatusBadge = ({ status }) => {
     const colors = {
@@ -22,8 +22,8 @@ const StatusBadge = ({ status }) => {
     );
 };
 
-export const ReceiptsView = () => {
-    const [receipts, setReceipts] = useState([]);
+export const DeliveriesView = () => {
+    const [deliveries, setDeliveries] = useState([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState('');
     const [actionLoading, setActionLoading] = useState(null);
@@ -33,7 +33,7 @@ export const ReceiptsView = () => {
     const [saving, setSaving] = useState(false);
     const [locations, setLocations] = useState([]);
     const [products, setProducts] = useState([]);
-    const [formData, setFormData] = useState({ supplier: '', location: '', scheduled_date: '', reference: '', lines: [{ product: '', quantity: 1 }] });
+    const [formData, setFormData] = useState({ location: '', customer: '', scheduled_date: '', reference: '', lines: [{ product: '', quantity: 1 }] });
 
     useEffect(() => {
         loadData();
@@ -43,15 +43,15 @@ export const ReceiptsView = () => {
         setLoading(true);
         try {
             const params = statusFilter ? { status: statusFilter } : {};
-            const [recRes, locRes, prodRes] = await Promise.all([
-                api.getReceipts(params),
+            const [delRes, locRes, prodRes] = await Promise.all([
+                api.getDeliveries(params),
                 api.getLocations().catch(() => ({ data: [] })),
                 api.getProducts().catch(() => ({ data: [] }))
             ]);
-            setReceipts(recRes.data);
+            setDeliveries(delRes.data);
             setLocations(locRes.data);
             setProducts(prodRes.data);
-            // Auto-select first matching locations for convenience
+
             if (!formData.location && locRes.data.length > 0) {
                 setFormData(prev => ({ ...prev, location: locRes.data[0].id }));
             }
@@ -63,7 +63,7 @@ export const ReceiptsView = () => {
             }
         } catch (err) {
             console.error(err);
-            setReceipts([]);
+            setDeliveries([]);
         } finally {
             setLoading(false);
         }
@@ -72,7 +72,7 @@ export const ReceiptsView = () => {
     const handleConfirm = async (id) => {
         setActionLoading(id);
         try {
-            await api.confirmReceipt(id);
+            await api.confirmDelivery(id);
             loadData();
         } catch (err) {
             alert(err.response?.data?.error || 'Confirmation failed');
@@ -84,7 +84,7 @@ export const ReceiptsView = () => {
     const handleValidate = async (id) => {
         setActionLoading(id);
         try {
-            await api.validateReceipt(id);
+            await api.validateDelivery(id);
             loadData();
         } catch (err) {
             alert(err.response?.data?.error || 'Validation failed');
@@ -97,7 +97,7 @@ export const ReceiptsView = () => {
         setActionLoading(id);
         try {
             const { apiClient } = await import('../api/client');
-            await apiClient.post(`receipts/${id}/cancel/`);
+            await apiClient.post(`deliveries/${id}/cancel/`);
             loadData();
         } catch (err) {
             alert(err.response?.data?.error || 'Cancel failed');
@@ -110,10 +110,10 @@ export const ReceiptsView = () => {
         e.preventDefault();
         setSaving(true);
         try {
-            await api.createReceipt(formData);
+            await api.createDelivery(formData);
             setShowModal(false);
             setFormData({
-                supplier: '', location: '', scheduled_date: '', reference: '',
+                location: '', customer: '', scheduled_date: '', reference: '',
                 lines: [{ product: products[0]?.id || '', quantity: 1 }]
             });
             loadData();
@@ -124,9 +124,9 @@ export const ReceiptsView = () => {
                 const message = Object.keys(errorData)
                     .map(key => `${key}: ${Array.isArray(errorData[key]) ? errorData[key].join(', ') : errorData[key]}`)
                     .join('\n');
-                alert(message || 'Failed to create receipt');
+                alert(message || 'Failed to create delivery');
             } else {
-                alert('Failed to create receipt');
+                alert('Failed to create delivery');
             }
         } finally {
             setSaving(false);
@@ -152,19 +152,16 @@ export const ReceiptsView = () => {
     };
 
     const statusOptions = ['', 'draft', 'waiting', 'ready', 'done', 'cancelled'];
-    const supplierLocations = locations.filter(l => l.location_type === 'supplier');
-    const internalLocations = locations.filter(l => l.location_type === 'internal');
 
     return (
         <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative' }}>
-
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
-                    <h1 className="title-primary" style={{ fontSize: '2rem' }}>Incoming Receipts</h1>
-                    <p className="text-muted">Process and validate vendor shipments receiving into your locations.</p>
+                    <h1 className="title-primary" style={{ fontSize: '2rem' }}>Delivery Orders</h1>
+                    <p className="text-muted">Manage outgoing shipments to customers from your warehouse locations.</p>
                 </div>
                 <button className="glass-button primary" onClick={() => setShowModal(true)}>
-                    <BsBoxArrowInDown style={{ fontSize: '1.2rem' }} /> New Receipt
+                    <BsPlus style={{ fontSize: '1.2rem' }} /> New Delivery
                 </button>
             </div>
 
@@ -172,7 +169,7 @@ export const ReceiptsView = () => {
             <div className="glass-panel" style={{ padding: '20px', marginBottom: '24px', display: 'flex', gap: '16px', alignItems: 'center' }}>
                 <div style={{ flex: 1, position: 'relative' }}>
                     <BsSearch style={{ position: 'absolute', left: '16px', top: '16px', color: 'var(--text-tertiary)' }} />
-                    <input type="text" className="glass-input" placeholder="Search receipts..." style={{ paddingLeft: '48px' }} />
+                    <input type="text" className="glass-input" placeholder="Search deliveries..." style={{ paddingLeft: '48px' }} />
                 </div>
                 <select
                     className="glass-input"
@@ -188,11 +185,12 @@ export const ReceiptsView = () => {
                 </select>
             </div>
 
+            {/* Data Table */}
             <div className="glass-panel" style={{ overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                     <thead style={{ background: 'rgba(255,255,255,0.05)', borderBottom: 'var(--glass-border)' }}>
                         <tr>
-                            {['Reference', 'Supplier', 'Scheduled Date', 'Destination', 'Status', 'Actions'].map(h => (
+                            {['Reference', 'Customer', 'Scheduled Date', 'Source Location', 'Status', 'Actions'].map(h => (
                                 <th key={h} style={{
                                     padding: '16px 24px', color: 'var(--text-secondary)', fontWeight: 600,
                                     fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px',
@@ -204,42 +202,42 @@ export const ReceiptsView = () => {
                     <tbody>
                         {loading ? (
                             <tr><td colSpan="6" style={{ padding: '40px', textAlign: 'center' }}>Loading...</td></tr>
-                        ) : receipts.length === 0 ? (
-                            <tr><td colSpan="6" style={{ padding: '40px', textAlign: 'center' }} className="text-muted">No receipts found.</td></tr>
-                        ) : receipts.map(r => (
-                            <tr key={r.id} className="glass-interactive" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', transition: 'background 0.2s' }}>
-                                <td style={{ padding: '16px 24px' }}><span className="gold-text" style={{ fontWeight: 600 }}>{r.reference}</span></td>
-                                <td style={{ padding: '16px 24px', fontWeight: 500 }}>{r.supplier}</td>
-                                <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{r.scheduled_date}</td>
-                                <td style={{ padding: '16px 24px' }}>{r.location_display}</td>
-                                <td style={{ padding: '16px 24px' }}><StatusBadge status={r.status} /></td>
+                        ) : deliveries.length === 0 ? (
+                            <tr><td colSpan="6" style={{ padding: '40px', textAlign: 'center' }} className="text-muted">No delivery orders found.</td></tr>
+                        ) : deliveries.map(d => (
+                            <tr key={d.id} className="glass-interactive" style={{ borderBottom: '1px solid rgba(255,255,255,0.03)' }}>
+                                <td style={{ padding: '16px 24px' }}><span className="gold-text" style={{ fontWeight: 600 }}>{d.reference}</span></td>
+                                <td style={{ padding: '16px 24px', fontWeight: 500 }}>{d.customer}</td>
+                                <td style={{ padding: '16px 24px', color: 'var(--text-secondary)' }}>{d.scheduled_date}</td>
+                                <td style={{ padding: '16px 24px' }}>{d.location_display}</td>
+                                <td style={{ padding: '16px 24px' }}><StatusBadge status={d.status} /></td>
                                 <td style={{ padding: '16px 24px', textAlign: 'right', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                    {r.status === 'draft' && (
+                                    {d.status === 'draft' && (
                                         <button
                                             className="glass-button primary"
                                             style={{ padding: '6px 12px', fontSize: '0.8rem', background: 'var(--color-accent-gold-primary)', color: '#000' }}
-                                            onClick={() => handleConfirm(r.id)}
-                                            disabled={actionLoading === r.id}
+                                            onClick={() => handleConfirm(d.id)}
+                                            disabled={actionLoading === d.id}
                                         >
-                                            <BsCheckLg /> {actionLoading === r.id ? '...' : 'Confirm'}
+                                            <BsCheckLg /> {actionLoading === d.id ? '...' : 'Confirm'}
                                         </button>
                                     )}
-                                    {r.status === 'ready' && (
+                                    {d.status === 'ready' && (
                                         <button
                                             className="glass-button primary"
                                             style={{ padding: '6px 12px', fontSize: '0.8rem' }}
-                                            onClick={() => handleValidate(r.id)}
-                                            disabled={actionLoading === r.id}
+                                            onClick={() => handleValidate(d.id)}
+                                            disabled={actionLoading === d.id}
                                         >
-                                            <BsCheckLg /> {actionLoading === r.id ? '...' : 'Validate'}
+                                            <BsCheckLg /> {actionLoading === d.id ? '...' : 'Validate'}
                                         </button>
                                     )}
-                                    {(r.status === 'draft' || r.status === 'waiting' || r.status === 'ready') && r.status !== 'done' && (
+                                    {(d.status === 'draft' || d.status === 'waiting' || d.status === 'ready') && d.status !== 'done' && (
                                         <button
                                             className="glass-button"
                                             style={{ padding: '6px 12px', fontSize: '0.8rem', color: '#f87171' }}
-                                            onClick={() => handleCancel(r.id)}
-                                            disabled={actionLoading === r.id}
+                                            onClick={() => handleCancel(d.id)}
+                                            disabled={actionLoading === d.id}
                                         >
                                             <BsX /> Cancel
                                         </button>
@@ -259,22 +257,22 @@ export const ReceiptsView = () => {
                     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
                 }}>
                     <div className="glass-card" style={{ width: '100%', maxWidth: '500px', padding: '32px' }}>
-                        <h2 className="title-secondary" style={{ marginBottom: '24px' }}>Create New Receipt</h2>
+                        <h2 className="title-secondary" style={{ marginBottom: '24px' }}>Create New Delivery</h2>
                         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             <div>
-                                <label className="form-label">Vendor Reference</label>
-                                <input className="glass-input" value={formData.reference} onChange={e => setFormData({ ...formData, reference: e.target.value })} placeholder="e.g. PO-2026-001" />
+                                <label className="form-label">Customer Order Ref</label>
+                                <input className="glass-input" value={formData.reference} onChange={e => setFormData({ ...formData, reference: e.target.value })} placeholder="e.g. SO-2026-001" />
                             </div>
                             <div>
-                                <label className="form-label">Supplier Name *</label>
-                                <input required className="glass-input" value={formData.supplier} onChange={e => setFormData({ ...formData, supplier: e.target.value })} placeholder="e.g. Acme Corp" />
-                            </div>
-                            <div>
-                                <label className="form-label">Destination (Your Warehouse) *</label>
+                                <label className="form-label">Source (Your Warehouse) *</label>
                                 <select required className="glass-input" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} style={{ appearance: 'none', background: '#111' }}>
-                                    <option value="">-- Select Destination --</option>
+                                    <option value="">-- Select Source Location --</option>
                                     {locations.map(l => <option key={l.id} value={l.id}>{l.name} ({l.warehouse_name})</option>)}
                                 </select>
+                            </div>
+                            <div>
+                                <label className="form-label">Customer Name *</label>
+                                <input required className="glass-input" value={formData.customer} onChange={e => setFormData({ ...formData, customer: e.target.value })} placeholder="e.g. John Doe" />
                             </div>
 
                             <div style={{ marginTop: '8px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '16px' }}>

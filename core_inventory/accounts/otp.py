@@ -2,7 +2,7 @@ import random
 import string
 from django.utils import timezone
 from django.core.cache import cache
-from datetime import timedelta
+from datetime import timedelta, timezone as dt_timezone
 
 OTP_EXPIRY_MINUTES = 5
 
@@ -30,7 +30,7 @@ def verify_otp(email, otp):
     if data['otp'] != otp:
         return False
         
-    created = timezone.datetime.fromtimestamp(data['created_at'], tz=timezone.utc)
+    created = timezone.datetime.fromtimestamp(data['created_at'], tz=dt_timezone.utc)
     if timezone.now() - created > timedelta(minutes=OTP_EXPIRY_MINUTES):
         return False
         
