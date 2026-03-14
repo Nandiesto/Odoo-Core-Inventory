@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} — Core Inventory{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:700px;">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="form-group">
+      <label class="form-label">Reference</label>{{ form.reference }}
+      {% if form.reference.errors %}<p class="form-error">{{ form.reference.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Product</label>{{ form.product }}
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">From Location</label>{{ form.from_location }}</div>
+      <div class="form-group"><label class="form-label">To Location</label>{{ form.to_location }}</div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Quantity</label>{{ form.quantity }}</div>
+      <div class="form-group"><label class="form-label">Scheduled Date</label>{{ form.scheduled_date }}</div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label>{{ form.notes }}</div>
+
+    {% if form.non_field_errors %}
+    <div class="form-error mb-4">{% for e in form.non_field_errors %}{{ e }}{% endfor %}</div>
+    {% endif %}
+
+    <div class="flex gap-3 mt-4">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Create Transfer</button>
+      <a href="{% url 'inventory:transfer_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

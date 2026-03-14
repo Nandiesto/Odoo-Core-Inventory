@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} — Core Inventory{% endblock %}
+{% block page_title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+  <div>
+    <span class="badge badge-done">{{ product.sku }}</span>
+    <span class="text-muted text-sm" style="margin-left:8px;">{{ product.get_unit_of_measure_display }}</span>
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'inventory:product_edit' product.pk %}" class="btn btn-secondary btn-sm"><i class="fas fa-pen"></i> Edit</a>
+    <a href="{% url 'inventory:product_delete' product.pk %}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</a>
+  </div>
+</div>
+
+<div class="detail-grid">
+  <div class="detail-item">
+    <label>Category</label>
+    <span>{{ product.category.name|default:"—" }}</span>
+  </div>
+  <div class="detail-item">
+    <label>Total Stock</label>
+    <span style="font-size:1.2rem;font-weight:700;">{{ product.total_stock }}</span>
+  </div>
+  <div class="detail-item">
+    <label>Created</label>
+    <span>{{ product.created_at|date:"M d, Y" }}</span>
+  </div>
+  <div class="detail-item">
+    <label>Updated</label>
+    <span>{{ product.updated_at|date:"M d, Y" }}</span>
+  </div>
+</div>
+
+{% if product.description %}
+<div class="card mb-4">
+  <p class="text-sm text-muted">{{ product.description }}</p>
+</div>
+{% endif %}
+
+<!-- Stock per Location -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h2 class="card-title">Stock by Location</h2>
+  </div>
+  {% if stock_levels %}
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Warehouse</th><th>Location</th><th>Quantity</th></tr>
+      </thead>
+      <tbody>
+        {% for sl in stock_levels %}
+        <tr>
+          <td>{{ sl.location.warehouse.name }}</td>
+          <td>{{ sl.location.name }}</td>
+          <td><strong>{{ sl.quantity }}</strong></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted text-sm" style="padding:8px 0;">No stock recorded yet.</p>
+  {% endif %}
+</div>
+
+<!-- Recent Moves -->
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Recent Moves</h2>
+  </div>
+  {% if moves %}
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>Type</th><th>Reference</th><th>Qty</th><th>Date</th></tr>
+      </thead>
+      <tbody>
+        {% for m in moves %}
+        <tr>
+          <td><span class="badge badge-{% if m.move_type == 'receipt' %}done{% elif m.move_type == 'delivery' %}cancelled{% elif m.move_type == 'transfer' %}ready{% else %}waiting{% endif %}">{{ m.get_move_type_display }}</span></td>
+          <td>{{ m.reference }}</td>
+          <td>{{ m.quantity }}</td>
+          <td class="text-muted text-sm">{{ m.timestamp|date:"M d, Y H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted text-sm" style="padding:8px 0;">No moves recorded yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} — Core Inventory{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:600px;">
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="form-group">
+      <label class="form-label">Reference</label>{{ form.reference }}
+      {% if form.reference.errors %}<p class="form-error">{{ form.reference.errors.0 }}</p>{% endif %}
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Product</label>{{ form.product }}</div>
+      <div class="form-group"><label class="form-label">Location</label>{{ form.location }}</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Counted Quantity</label>{{ form.counted_quantity }}
+      <p class="text-muted text-sm mt-2">Enter what you physically counted. The system will auto-calculate the difference.</p>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Reason</label>{{ form.reason }}</div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label>{{ form.notes }}</div>
+
+    <div class="flex gap-3 mt-4">
+      <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Apply Adjustment</button>
+      <a href="{% url 'inventory:adjustment_list' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

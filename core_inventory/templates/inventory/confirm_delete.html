@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Delete — Core Inventory{% endblock %}
+{% block page_title %}Confirm Delete{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width:500px;">
+  <div style="text-align:center; padding:20px 0;">
+    <div style="font-size:2.5rem; margin-bottom:16px;">⚠️</div>
+    <h2 style="margin-bottom:8px;">Delete "{{ object }}"?</h2>
+    <p class="text-muted text-sm mb-4">This action cannot be undone.</p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="flex gap-3" style="justify-content:center;">
+        <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Yes, Delete</button>
+        <a href="{% url cancel_url %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

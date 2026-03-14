@@ -1,0 +1,36 @@
+{% extends 'auth_base.html' %}
+{% block title %}Login — Core Inventory{% endblock %}
+
+{% block auth_content %}
+<h1>Welcome Back</h1>
+<p class="auth-subtitle">Sign in to your inventory dashboard</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+
+  <div class="form-group">
+    <label class="form-label" for="id_username">Username</label>
+    {{ form.username }}
+    {% if form.username.errors %}<p class="form-error">{{ form.username.errors.0 }}</p>{% endif %}
+  </div>
+
+  <div class="form-group">
+    <label class="form-label" for="id_password">Password</label>
+    {{ form.password }}
+    {% if form.password.errors %}<p class="form-error">{{ form.password.errors.0 }}</p>{% endif %}
+  </div>
+
+  {% if form.non_field_errors %}
+  <div class="form-error" style="margin-bottom: 12px;">
+    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+  </div>
+  {% endif %}
+
+  <button type="submit" class="btn btn-primary">Sign In</button>
+</form>
+
+<div class="auth-links">
+  <a href="{% url 'accounts:otp_request' %}">Forgot password?</a><br>
+  Don't have an account? <a href="{% url 'accounts:signup' %}">Sign up</a>
+</div>
+{% endblock %}

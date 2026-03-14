@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Transfers — Core Inventory{% endblock %}
+{% block page_title %}Internal Transfers{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Internal Transfers</h2>
+    <a href="{% url 'inventory:transfer_create' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> New Transfer</a>
+  </div>
+  <form class="filter-bar" method="get">
+    <select name="status">
+      <option value="">All Status</option>
+      <option value="draft" {% if selected_status == 'draft' %}selected{% endif %}>Draft</option>
+      <option value="waiting" {% if selected_status == 'waiting' %}selected{% endif %}>Waiting</option>
+      <option value="done" {% if selected_status == 'done' %}selected{% endif %}>Done</option>
+      <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+    </select>
+    <button type="submit" class="btn btn-secondary btn-sm"><i class="fas fa-filter"></i> Filter</button>
+    {% if selected_status %}<a href="{% url 'inventory:transfer_list' %}" class="btn btn-ghost btn-sm">Clear</a>{% endif %}
+  </form>
+  {% if transfers %}
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Reference</th><th>Product</th><th>From</th><th>To</th><th>Qty</th><th>Status</th><th class="text-right">Actions</th></tr></thead>
+      <tbody>
+        {% for t in transfers %}
+        <tr>
+          <td><a href="{% url 'inventory:transfer_detail' t.pk %}" style="font-weight:550;">{{ t.reference }}</a></td>
+          <td>{{ t.product.name }}</td>
+          <td class="text-muted text-sm">{{ t.from_location }}</td>
+          <td class="text-muted text-sm">{{ t.to_location }}</td>
+          <td>{{ t.quantity }}</td>
+          <td><span class="badge badge-{{ t.status }}">{{ t.get_status_display }}</span></td>
+          <td class="text-right"><a href="{% url 'inventory:transfer_detail' t.pk %}" class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="empty-icon">🔄</div><p>No transfers found.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}My Profile — Core Inventory{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px;">
+  <div class="card-header">
+    <h2 class="card-title">Profile Details</h2>
+  </div>
+
+  <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+    <div class="avatar" style="width:56px;height:56px;font-size:1.3rem;background:linear-gradient(135deg,#6366f1,#ec4899);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;">
+      {{ request.user.first_name|default:request.user.username|make_list|first|upper }}
+    </div>
+    <div>
+      <div style="font-weight:600;font-size:1.1rem;">{{ request.user.get_full_name|default:request.user.username }}</div>
+      <div class="text-muted text-sm">{{ request.user.email }} · {{ request.user.get_role_display }}</div>
+    </div>
+  </div>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">First Name</label>
+        {{ form.first_name }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Last Name</label>
+        {{ form.last_name }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      {{ form.email }}
+    </div>
+    <div class="form-group">
+      <label class="form-label">Phone</label>
+      {{ form.phone }}
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+  </form>
+</div>
+{% endblock %}

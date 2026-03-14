@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Categories — Core Inventory{% endblock %}
+{% block page_title %}Categories{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Product Categories</h2>
+    <a href="{% url 'inventory:category_create' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> New Category</a>
+  </div>
+  {% if categories %}
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Name</th><th>Description</th><th>Created</th><th class="text-right">Actions</th></tr></thead>
+      <tbody>
+        {% for cat in categories %}
+        <tr>
+          <td style="font-weight:550;">{{ cat.name }}</td>
+          <td class="text-muted text-sm">{{ cat.description|truncatewords:10|default:"—" }}</td>
+          <td class="text-muted text-sm">{{ cat.created_at|date:"M d, Y" }}</td>
+          <td class="text-right">
+            <a href="{% url 'inventory:category_edit' cat.pk %}" class="btn btn-ghost btn-sm"><i class="fas fa-pen"></i></a>
+            <a href="{% url 'inventory:category_delete' cat.pk %}" class="btn btn-ghost btn-sm" style="color:var(--danger);"><i class="fas fa-trash"></i></a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><div class="empty-icon">🏷️</div><p>No categories yet.</p>
+    <a href="{% url 'inventory:category_create' %}" class="btn btn-primary"><i class="fas fa-plus"></i> New Category</a></div>
+  {% endif %}
+</div>
+{% endblock %}

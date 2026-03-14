@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — Core Inventory{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- KPI Cards -->
+<div class="kpi-grid">
+  <div class="kpi-card kpi-primary animate-scale">
+    <div class="kpi-icon"><i class="fas fa-boxes-stacked"></i></div>
+    <div class="kpi-content">
+      <div class="kpi-value">{{ total_products }}</div>
+      <div class="kpi-label">Total Products</div>
+    </div>
+  </div>
+  <div class="kpi-card kpi-warning animate-scale">
+    <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
+    <div class="kpi-content">
+      <div class="kpi-value">{{ low_stock_items }}</div>
+      <div class="kpi-label">Low Stock Items</div>
+    </div>
+  </div>
+  <div class="kpi-card kpi-danger animate-scale">
+    <div class="kpi-icon"><i class="fas fa-box-open"></i></div>
+    <div class="kpi-content">
+      <div class="kpi-value">{{ out_of_stock_items }}</div>
+      <div class="kpi-label">Out of Stock</div>
+    </div>
+  </div>
+  <div class="kpi-card kpi-success animate-scale">
+    <div class="kpi-icon"><i class="fas fa-truck-ramp-box"></i></div>
+    <div class="kpi-content">
+      <div class="kpi-value">{{ pending_receipts }}</div>
+      <div class="kpi-label">Pending Receipts</div>
+    </div>
+  </div>
+  <div class="kpi-card kpi-info animate-scale">
+    <div class="kpi-icon"><i class="fas fa-truck-fast"></i></div>
+    <div class="kpi-content">
+      <div class="kpi-value">{{ pending_deliveries }}</div>
+      <div class="kpi-label">Pending Deliveries</div>
+    </div>
+  </div>
+  <div class="kpi-card kpi-primary animate-scale">
+    <div class="kpi-icon"><i class="fas fa-arrows-rotate"></i></div>
+    <div class="kpi-content">
+      <div class="kpi-value">{{ scheduled_transfers }}</div>
+      <div class="kpi-label">Scheduled Transfers</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Dynamic Filters ═══ -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h2 class="card-title"><i class="fas fa-filter" style="color:var(--accent-primary);margin-right:8px;"></i>Document Explorer</h2>
+  </div>
+  <form class="filter-bar" method="get">
+    <select name="doc_type" class="form-input" style="max-width:180px;">
+      <option value="">All Documents</option>
+      <option value="receipt" {% if doc_type == 'receipt' %}selected{% endif %}>Receipts</option>
+      <option value="delivery" {% if doc_type == 'delivery' %}selected{% endif %}>Deliveries</option>
+      <option value="transfer" {% if doc_type == 'transfer' %}selected{% endif %}>Transfers</option>
+      <option value="adjustment" {% if doc_type == 'adjustment' %}selected{% endif %}>Adjustments</option>
+    </select>
+    <select name="status" class="form-input" style="max-width:150px;">
+      <option value="">All Status</option>
+      <option value="draft" {% if selected_status == 'draft' %}selected{% endif %}>Draft</option>
+      <option value="waiting" {% if selected_status == 'waiting' %}selected{% endif %}>Waiting</option>
+      <option value="ready" {% if selected_status == 'ready' %}selected{% endif %}>Ready</option>
+      <option value="done" {% if selected_status == 'done' %}selected{% endif %}>Done</option>
+      <option value="cancelled" {% if selected_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+    </select>
+    <select name="warehouse" class="form-input" style="max-width:180px;">
+      <option value="">All Warehouses</option>
+      {% for wh in warehouses %}
+      <option value="{{ wh.pk }}" {% if selected_warehouse == wh.pk|stringformat:"d" %}selected{% endif %}>{{ wh.name }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-search"></i> Search</button>
+    {% if show_filters %}<a href="{% url 'dashboard:home' %}" class="btn btn-ghost btn-sm">Clear</a>{% endif %}
+  </form>
+
+  {% if show_filters %}
+  {% if filtered_docs %}
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Type</th><th>Reference</th><th>Partner / Product</th><th>Status</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for doc in filtered_docs %}
+        <tr>
+          <td><span class="badge badge-{{ doc.type_class }}">{{ doc.type }}</span></td>
+          <td style="font-weight:550;">{{ doc.reference }}</td>
+          <td class="text-muted text-sm">{{ doc.partner|truncatewords:6 }}</td>
+          <td><span class="badge badge-{{ doc.status_class }}">{{ doc.status }}</span></td>
+          <td class="text-muted text-sm">{{ doc.date|date:"M d, Y" }}</td>
+          <td class="text-right"><a href="{{ doc.url }}" class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted text-sm" style="padding:12px 0;">No documents match your filters.</p>
+  {% endif %}
+  {% else %}
+  <p class="text-muted text-sm" style="padding:4px 0;">Select filters and click Search to explore operations.</p>
+  {% endif %}
+</div>
+
+<!-- ═══ Low Stock / Out of Stock Alerts ═══ -->
+{% if low_stock_products or out_of_stock_products %}
+<div class="card mb-4">
+  <div class="card-header">
+    <h2 class="card-title"><i class="fas fa-bell" style="color:var(--warning);margin-right:8px;"></i>Stock Alerts</h2>
+    <a href="{% url 'inventory:reorder_rule_list' %}" class="btn btn-ghost btn-sm">View Rules →</a>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead><tr><th>Product</th><th>Warehouse</th><th>Current Stock</th><th>Min Threshold</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for item in out_of_stock_products %}
+        <tr>
+          <td><a href="{% url 'inventory:product_detail' item.product.pk %}" style="font-weight:550;">{{ item.product.name }}</a></td>
+          <td class="text-muted text-sm">{{ item.warehouse.name }}</td>
+          <td><strong style="color:var(--danger);">{{ item.quantity }}</strong></td>
+          <td>{{ item.min_quantity }}</td>
+          <td><span class="badge badge-cancelled">Out of Stock</span></td>
+        </tr>
+        {% endfor %}
+        {% for item in low_stock_products %}
+        <tr>
+          <td><a href="{% url 'inventory:product_detail' item.product.pk %}" style="font-weight:550;">{{ item.product.name }}</a></td>
+          <td class="text-muted text-sm">{{ item.warehouse.name }}</td>
+          <td><strong style="color:var(--warning);">{{ item.quantity }}</strong></td>
+          <td>{{ item.min_quantity }}</td>
+          <td><span class="badge badge-waiting">Low Stock</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<!-- ═══ Quick Actions + Recent Activity ═══ -->
+<div class="dashboard-bottom-grid">
+  <!-- Quick Actions -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Quick Actions</h2>
+    </div>
+    <div class="quick-action-grid">
+      <a href="{% url 'inventory:receipt_create' %}" class="quick-action-btn">
+        <div class="qa-icon" style="background:var(--success-bg);color:var(--success);"><i class="fas fa-truck-ramp-box"></i></div>
+        <span>New Receipt</span>
+      </a>
+      <a href="{% url 'inventory:delivery_create' %}" class="quick-action-btn">
+        <div class="qa-icon" style="background:var(--info-bg);color:var(--info);"><i class="fas fa-truck-fast"></i></div>
+        <span>New Delivery</span>
+      </a>
+      <a href="{% url 'inventory:transfer_create' %}" class="quick-action-btn">
+        <div class="qa-icon" style="background:var(--accent-glow);color:var(--accent-hover);"><i class="fas fa-arrows-rotate"></i></div>
+        <span>New Transfer</span>
+      </a>
+      <a href="{% url 'inventory:product_create' %}" class="quick-action-btn">
+        <div class="qa-icon" style="background:var(--warning-bg);color:var(--warning);"><i class="fas fa-box"></i></div>
+        <span>New Product</span>
+      </a>
+      <a href="{% url 'inventory:adjustment_create' %}" class="quick-action-btn">
+        <div class="qa-icon" style="background:var(--danger-bg);color:var(--danger);"><i class="fas fa-sliders"></i></div>
+        <span>Adjust Stock</span>
+      </a>
+      <a href="{% url 'inventory:move_history' %}" class="quick-action-btn">
+        <div class="qa-icon" style="background:rgba(255,255,255,0.05);color:var(--text-secondary);"><i class="fas fa-clock-rotate-left"></i></div>
+        <span>Move History</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Recent Activity</h2>
+      <a href="{% url 'inventory:move_history' %}" class="btn btn-ghost btn-sm">View All →</a>
+    </div>
+    {% if recent_moves %}
+    <div class="activity-feed">
+      {% for m in recent_moves %}
+      <div class="activity-item">
+        <div class="activity-icon activity-{{ m.move_type }}">
+          {% if m.move_type == 'receipt' %}<i class="fas fa-arrow-down"></i>
+          {% elif m.move_type == 'delivery' %}<i class="fas fa-arrow-up"></i>
+          {% elif m.move_type == 'transfer' %}<i class="fas fa-arrows-rotate"></i>
+          {% else %}<i class="fas fa-sliders"></i>{% endif %}
+        </div>
+        <div class="activity-content">
+          <div class="activity-title">{{ m.get_move_type_display }} — {{ m.reference }}</div>
+          <div class="activity-desc">{{ m.product.name }} × {{ m.quantity }}</div>
+          <div class="activity-time">{{ m.timestamp|timesince }} ago</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted text-sm">No recent activity yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'auth_base.html' %}
+{% block title %}Reset Password — Core Inventory{% endblock %}
+
+{% block auth_content %}
+<h1>Forgot Password</h1>
+<p class="auth-subtitle">Enter your email to receive an OTP</p>
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  <div class="form-group">
+    <label class="form-label" for="id_email">Email Address</label>
+    {{ form.email }}
+    {% if form.email.errors %}<p class="form-error">{{ form.email.errors.0 }}</p>{% endif %}
+  </div>
+  <button type="submit" class="btn btn-primary">Send OTP</button>
+</form>
+
+<div class="auth-links">
+  <a href="{% url 'accounts:login' %}">← Back to login</a>
+</div>
+{% endblock %}
